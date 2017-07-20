@@ -22,8 +22,10 @@ sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debi
 sudo apt-get update
 sudo apt-get install docker-ce -y
 
+
 # Build and run PDNS dockers
-#docker 
+docker-compose -f /vagrant/docker/docker-compose.yml build
+docker-compose -f /vagrant/docker/docker-compose.yml up -d
 
 EOS
 
@@ -33,15 +35,19 @@ Vagrant.configure("2") do |config|
     virtualbox.vm.hostname = "pdns-stack-test01"
     virtualbox.vm.box = "debian/contrib-jessie64"
     config.vm.box_version = "8.7.0"
-    config.vm.network "private_network", type: "dhcp", virtualbox__intnet: true
+    config.vm.network "private_network", ip: "192.168.50.7",
+      virtualbox__intnet: "pdns_network"
+    config.vm.network "forwarded_port", guest: 80, host: 8000
+    config.vm.network "forwarded_port", guest: 53, host: 5353
 
     config.vm.provider :virtualbox do |v|
       v.gui = false
       v.memory = 2048
       v.cpus = 2
+      v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
     
-    config.vm.synced_folder "docker/", "/docker"
+    config.vm.synced_folder "./docker/", "/docker"
     
     config.vm.provision "shell", inline: $script
 

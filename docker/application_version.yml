@@ -1,0 +1,16 @@
+---
+ - docker-base:
+      pdns-server: debian:8.7
+      pdns-recursor: debian:8.7
+      pdns-db: mariadb:10.3
+      pdns-admin: debian:8.7
+ 
+ - pdns-server:
+      pdns-server: 4.0.4-1pdns.jessie
+      pdns-backend-mysql: 4.0.4-1pdns.jessie
+ 
+ - pdns-recursor:
+       pdns-recursor: 3.6.2-2+deb8u3
+ 
+ - pdns-admin:
+      poweradmin: 2.1.7
