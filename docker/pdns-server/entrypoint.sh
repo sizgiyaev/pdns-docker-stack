@@ -13,9 +13,30 @@ function create_env_conf () {
         if [[ "${var,,}" == pdns_* ]]
         then
             IFS='=' read -r -a param <<< "${var,,}"
-            echo "$(cut -d '=' -f 1 <<< ${param[0]} | sed 's/^pdns_\(.*\)/\1/' | sed -r 's/_/-/g')=${param[1]}" >> $1
+            key=$(cut -d '=' -f 1 <<< ${param[0]} | sed 's/^pdns_\(.*\)/\1/' | sed -r 's/_/-/g')
+            value=${param[1]}
+            
+            case $key in
+                recursor)
+                    ip=$(resolve_host $(cut -d":" -f1 <<< $value | tr -d '[:space:]'))
+                    [[ $ip ]] && value="$ip:$(cut -d":" -f2 <<< $value)"
+                ;;
+            esac
+            
+            echo "${key}=${value}" >> $1
         fi
     done
+}
+
+function resolve_host {
+    ip=
+    
+    if [[ ! $1 =~ ^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$ ]]
+    then
+        ip=$(host -W 60 $1 | grep " has address " | cut -d" " -f4)
+    fi
+ 
+    echo $ip
 }
 
 conf_file="/etc/powerdns/pdns.conf"

@@ -1,0 +1,32 @@
+---
+version: '3'
+services:
+  pdns-admin:
+    container_name: pdns-admin
+    build: 
+      context: ./pdns-admin
+      args:
+        POWERADMIN_VERSION: 2.1.7
+    depends_on:
+      - pdns-db
+    links:
+      - pdns-db
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    env_file:
+      - ./pdns-admin.env
+    entrypoint:
+      - "entrypoint.sh"
+      - "-e"
+      - "-w"
+      - "pdns-db:3306"
+    restart: always
+
+  pdns-db:
+    container_name: pdns-db
+    build: ./pdns-db/
+    env_file:
+      - ./pdns-db.env
+    volumes:
+      - /var/lib/docker/volumes/pdns-db:/var/lib/mysql

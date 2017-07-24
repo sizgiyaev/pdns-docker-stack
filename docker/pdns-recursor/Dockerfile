@@ -13,9 +13,6 @@ RUN apt-get update && apt-get install -y curl && \
 	apt-get clean -qq && \
 	rm -rf /var/lib/apt/lists/*
 
-EXPOSE 53/tcp
-EXPOSE 53/udp
-
 STOPSIGNAL SIGTERM
 
 COPY ./entrypoint.sh /bin/

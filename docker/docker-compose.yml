@@ -16,11 +16,14 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
+      - "8001:8001/tcp"
     env_file:
       - ./pdns-server.env
     entrypoint:
       - "entrypoint.sh"
       - "-e"
+      - "-t"
+      - "60"
       - "-w"
       - "pdns-db:3306"
     restart: always
@@ -55,6 +58,8 @@ services:
     entrypoint:
       - "entrypoint.sh"
       - "-e"
+      - "-t"
+      - "60"
       - "-w"
       - "pdns-db:3306"
     restart: always

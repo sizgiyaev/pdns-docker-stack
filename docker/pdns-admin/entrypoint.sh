@@ -71,7 +71,10 @@ do
     (( wait_for_timeout-- ))
 done <<< $info
 
-php /tmp/add_mysql_tables.php users /tmp/poweradmin_mysql.sql
-rm -f /tmp/add_mysql_tables.php /tmp/poweradmin_mysql.sql
+if [[ $(php /add_mysql_tables.php users /poweradmin_mysql.sql && echo $?) -ne 0 ]]
+then
+    echo "$(date '+%b %d %Y %H:%M:%S') entrypoint:[ERROR] Failed to create poweradmin tables in database."
+    exit 1
+fi
 
 exec apache2ctl -D FOREGROUND
