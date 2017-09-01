@@ -24,8 +24,7 @@ sudo apt-get install docker-ce -y
 
 
 # Build and run PDNS dockers
-docker-compose -f /vagrant/docker/docker-compose.yml build
-docker-compose -f /vagrant/docker/docker-compose.yml up -d
+docker-compose -f /vagrant/docker/compose/docker-compose.yml up -d --build
 
 EOS
 
@@ -37,7 +36,9 @@ Vagrant.configure("2") do |config|
     config.vm.box_version = "8.7.0"
     config.vm.network "forwarded_port", guest: 53, host: 5300, protocol: "udp"
     config.vm.network "forwarded_port", guest: 53, host: 5300, protocol: "tcp"
-    config.vm.network "forwarded_port", guest: 80, host: 8000
+    config.vm.network "forwarded_port", guest: 80, host: 8000, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 8001, host: 8001, protocol: "tcp"
+    config.vm.network "forwarded_port", guest: 8002, host: 8002, protocol: "tcp" 
     
     config.vm.provider :virtualbox do |v|
       v.gui = false

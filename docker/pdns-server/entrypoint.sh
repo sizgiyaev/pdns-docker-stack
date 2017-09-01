@@ -73,9 +73,6 @@ do
             fi
             shift
         ;;
-        *)
-
-        ;;
     esac
     shift
 done

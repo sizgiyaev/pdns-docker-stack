@@ -4,7 +4,7 @@ services:
   pdns-server:
     container_name: pdns-server
     build: 
-      context: ./pdns-server
+      context: ../pdns-server
       args:
         PDNS_VERSION: 4.0.4-1pdns.jessie
         PDNS_MYSQL_VERSION: 4.0.4-1pdns.jessie
@@ -14,8 +14,6 @@ services:
       - pdns-db
       - pdns-recursor
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
       - "8001:8001/tcp"
     env_file:
       - ./pdns-server.env
@@ -31,7 +29,7 @@ services:
   pdns-recursor:
     container_name: pdns-recursor
     build: 
-      context: ./pdns-recursor
+      context: ../pdns-recursor
       args:
         PDNS_RECURSOR_VERSION: 3.6.2-2+deb8u3
     env_file:
@@ -40,10 +38,27 @@ services:
       - "entrypoint.sh"
       - "-e"
 
+  pdns-dnsdist:
+    container_name: pdns-dnsdist
+    build: 
+      context: ../pdns-dnsdist
+      args:
+        PDNS_DNSDIST_VERSION: 1.2.0-1pdns.jessie
+    depends_on:
+      - pdns-server
+      - pdns-recursor
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "8002:8001/tcp"
+    volumes:
+      - ./dnsdist.conf:/etc/dnsdist/dnsdist.conf
+    restart: always
+
   pdns-admin:
     container_name: pdns-admin
     build: 
-      context: ./pdns-admin
+      context: ../pdns-admin
       args:
         POWERADMIN_VERSION: 2.1.7
     depends_on:
@@ -66,7 +81,7 @@ services:
 
   pdns-db:
     container_name: pdns-db
-    build: ./pdns-db/
+    build: ../pdns-db/
     env_file:
       - ./pdns-db.env
     volumes:

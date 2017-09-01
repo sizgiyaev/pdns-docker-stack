@@ -31,9 +31,6 @@ do
     
             create_env_conf $conf_file
         ;;
-        *)
-
-        ;;
     esac
     shift
 done

@@ -14,3 +14,6 @@
  
  - pdns-admin:
       poweradmin: 2.1.7
+ 
+ - pdns-dnsdist:
+      dnsdist: 1.1.0-1pdns.jessie

@@ -1,41 +1,13 @@
 #!/bin/bash
 set -e
 
-WWW_ROOT=/var/www/html
-
-export POWERADMIN_SESSION_KEY=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;)
-
-function update_env_conf () {
-    
-    cp -f /var/www/html/inc/config-me.inc.php $1
-
-    for var in $(env)
-    do
-        if [[ "${var,,}" == poweradmin_* ]]
-        then
-            IFS='=' read -r key value <<< "${var}"
-        
-            key=$(sed 's/^poweradmin_\(.*\)/\1/' <<< ${key,,})
-        
-            # Escape / and \ symbols for future sed processing
-            value=$(sed -r "s/\//\\\\\//g;s/\\\([^\/])/\\\&/g" <<< $value)
-        
-            sed -i -re "s/(\/\/)?\s*([\x24]$key\s*=\s*'?)[^('|;)]*(.*$)/\2$value\3/g" $1
-        fi
-    done
-}
-
-conf_file="${WWW_ROOT}/inc/config.inc.php"
-
 wait_for_timeout=5
 wait_for_destination=()
+service_user=_dnsdist
 
 while [[ $# -gt 0 ]]
 do
     case $1 in
-        -e|--env-conf)
-            update_env_conf $conf_file
-        ;;
         -w|--wait-for)
             IFS=':' read -r -a wait_for_destination <<< $2
             if [[ ${#wait_for_destination[@]} -ne 2 ]]
@@ -55,6 +27,10 @@ do
             fi
             shift
         ;;
+        -u|--serivice-user)
+            service_user=$2
+            shift
+        ;;
     esac
     shift
 done
@@ -68,10 +44,5 @@ do
     (( wait_for_timeout-- ))
 done <<< $info
 
-if [[ $(php /add_mysql_tables.php users /poweradmin_mysql.sql && echo $?) -ne 0 ]]
-then
-    echo "$(date '+%b %d %Y %H:%M:%S') entrypoint:[ERROR] Failed to create poweradmin tables in database."
-    exit 1
-fi
 
-exec apache2ctl -D FOREGROUND
+exec dnsdist -g $service_user -u $service_user --supervised
