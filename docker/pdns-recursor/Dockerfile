@@ -5,7 +5,7 @@ ARG PDNS_RECURSOR_VERSION
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt-get update && apt-get install -y curl && \
+RUN apt-get update && apt-get install -y curl host && \
 	curl https://repo.powerdns.com/FD380FBB-pub.asc | apt-key add - && \
 	echo "deb [arch=amd64] http://repo.powerdns.com/debian jessie-auth-40 main" > /etc/apt/sources.list.d/pdns.list && \
 	apt-get update && apt-get install -y pdns-recursor=${PDNS_RECURSOR_VERSION} && \

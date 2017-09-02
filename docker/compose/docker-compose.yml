@@ -10,9 +10,6 @@ services:
         PDNS_MYSQL_VERSION: 4.0.4-1pdns.jessie
     depends_on:
       - pdns-db
-    links:
-      - pdns-db
-      - pdns-recursor
     ports:
       - "8001:8001/tcp"
     env_file:
@@ -44,9 +41,6 @@ services:
       context: ../pdns-dnsdist
       args:
         PDNS_DNSDIST_VERSION: 1.2.0-1pdns.jessie
-    depends_on:
-      - pdns-server
-      - pdns-recursor
     ports:
       - "53:53/tcp"
       - "53:53/udp"
@@ -62,8 +56,6 @@ services:
       args:
         POWERADMIN_VERSION: 2.1.7
     depends_on:
-      - pdns-db
-    links:
       - pdns-db
     ports:
       - "80:80/tcp"
