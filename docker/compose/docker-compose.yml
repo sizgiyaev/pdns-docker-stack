@@ -34,6 +34,7 @@ services:
     entrypoint:
       - "entrypoint.sh"
       - "-e"
+    restart: always    
 
   pdns-dnsdist:
     container_name: pdns-dnsdist
@@ -41,9 +42,12 @@ services:
       context: ../pdns-dnsdist
       args:
         PDNS_DNSDIST_VERSION: 1.2.0-1pdns.jessie
+    depends_on:
+      - pdns-server
+      - pdns-recursor 
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "5300:53/tcp"
+      - "5300:53/udp"
       - "8002:8001/tcp"
     volumes:
       - ./dnsdist.conf:/etc/dnsdist/dnsdist.conf
@@ -78,3 +82,4 @@ services:
       - ./pdns-db.env
     volumes:
       - /var/lib/docker/volumes/pdns-db:/var/lib/mysql
+    restart: always
