@@ -12,7 +12,7 @@ function host_to_ip () {
 # Arguments:
 #    $1 - Filename
 function resolve_hosts () {
-    local host_placeholders=$(grep -o -e "##.*##" $1)
+    local host_placeholders=$(grep -ow -e "##[^#]*##" $1)
     
     for HOST in ${host_placeholders[@]}
     do
