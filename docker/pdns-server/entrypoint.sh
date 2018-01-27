@@ -1,25 +1,6 @@
 #!/bin/bash
 set -e
 
-# host_to_ip - Returns first resolved IP address
-# Arguments:
-#    $1 - Hostname to be resolved
-function host_to_ip () {
-    echo $(host -t A $1 | head -n 1 | rev | cut -d" " -f1  | rev)
-}
-
-# resolve_hosts - Resolves all hostnames given in placeholders (eg. ##google.com##) in the given file
-# Arguments:
-#    $1 - Filename
-function resolve_hosts () {
-    local host_placeholders=$(grep -ow -e "##[^#]*##" $1)
-    
-    for HOST in ${host_placeholders[@]}
-    do
-        sed -i -e "s/$HOST/$(host_to_ip $(sed -Ee 's/##(.*)##/\1/g' <<< $HOST))/g" $1 
-    done
-}
-
 # create_env_conf - Creates the PDNS conf file from environment variables
 # Arguments:
 #    $1 - The Configuration file path
@@ -38,17 +19,6 @@ function create_env_conf () {
             echo "${key}=${value}" >> $1
         fi
     done
-}
-
-function resolve_host {
-    ip=
-    
-    if [[ ! $1 =~ ^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$ ]]
-    then
-        ip=$(host -W 60 $1 | grep " has address " | cut -d" " -f4)
-    fi
- 
-    echo $ip
 }
 
 conf_file="/etc/powerdns/pdns.conf"
@@ -97,8 +67,5 @@ do
     sleep 1
     (( wait_for_timeout-- ))
 done <<< $info
-
-# Resolve hostnames to IPs in given configuration file placeholders
-resolve_hosts $conf_file
 
 exec pdns_server

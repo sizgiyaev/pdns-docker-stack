@@ -44,5 +44,4 @@ do
     (( wait_for_timeout-- ))
 done <<< $info
 
-
 exec dnsdist -g $service_user -u $service_user --supervised
