@@ -6,8 +6,8 @@ services:
     build: 
       context: ../pdns-server
       args:
-        PDNS_VERSION: 4.0.4-1pdns.jessie
-        PDNS_MYSQL_VERSION: 4.0.4-1pdns.jessie
+        PDNS_VERSION: 4.0.5-1pdns.jessie
+        PDNS_MYSQL_VERSION: 4.0.5-1pdns.jessie
     depends_on:
       - pdns-db
     ports:
@@ -21,6 +21,9 @@ services:
       - "60"
       - "-w"
       - "pdns-db:3306"
+    networks:
+      pdns-net:
+        ipv4_address: 172.20.0.2
     restart: always
 
   pdns-recursor:
@@ -34,6 +37,9 @@ services:
     entrypoint:
       - "entrypoint.sh"
       - "-e"
+    networks:
+      pdns-net:
+        ipv4_address: 172.20.0.3
     restart: always    
 
   pdns-dnsdist:
@@ -46,11 +52,14 @@ services:
       - pdns-server
       - pdns-recursor 
     ports:
-      - "5300:53/tcp"
-      - "5300:53/udp"
+      - "53:53/tcp"
+      - "53:53/udp"
       - "8002:8001/tcp"
     volumes:
       - ./dnsdist.conf:/etc/dnsdist/dnsdist.conf
+    networks:
+      pdns-net:
+        ipv4_address: 172.20.0.4
     restart: always
 
   pdns-admin:
@@ -73,6 +82,9 @@ services:
       - "60"
       - "-w"
       - "pdns-db:3306"
+    networks:
+      pdns-net:
+        ipv4_address: 172.20.0.5
     restart: always
 
   pdns-db:
@@ -81,5 +93,18 @@ services:
     env_file:
       - ./pdns-db.env
     volumes:
-      - /var/lib/docker/volumes/pdns-db:/var/lib/mysql
+      - pdns-db:/var/lib/mysql
+    networks:
+      pdns-net:
+        ipv4_address: 172.20.0.6
     restart: always
+
+volumes:
+  pdns-db:
+
+networks:
+  pdns-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/28
